@@ -94,7 +94,7 @@ void ajouter_au_dict(Dict *d, const char *mot_lu, InfoMem *info) {
     d->taille++;
 }
 
-void algo1(FILE *fichier, InfoMem * info, int n) {
+void algo1(FILE *fichier, InfoMem * info, int n, char *sortie) {
     Dict monDict = {NULL, 0, 0};
     Mot courant = {NULL, 0, 0};
     int c;
@@ -123,16 +123,26 @@ void algo1(FILE *fichier, InfoMem * info, int n) {
     }
     qsort(monDict.elem, monDict.taille, sizeof(Element), comparer_occurrences);
     int max = (n>0 && n<monDict.taille) ? n : monDict.taille;
-    for (int i = 0; i < max; i++) {
-        printf("%s : %d\n", monDict.elem[i].mot, monDict.elem[i].occurrences);
+    FILE *fsortie = NULL;
+    if (sortie)
+        fsortie = fopen(sortie, "a");
+    for (int i = 0; i < monDict.taille; i++) {
+        if (i < max)
+            printf("%s : %d\n", monDict.elem[i].mot, monDict.elem[i].occurrences);
+        if (fsortie)
+            fprintf(fsortie, "%s %d\n", monDict.elem[i].mot, monDict.elem[i].occurrences);  
         myFree(monDict.elem[i].mot, info, strlen(monDict.elem[i].mot) + 1);
     }
+    if (fsortie)
+        fclose(fsortie);
     myFree(monDict.elem, info, monDict.capacite * sizeof(Element));
     myFree(courant.mot, info, courant.capacite * sizeof(char));
 }
 
 int main(int argc, char *argv[]){
     int n=-1, a1=0, a2=0;
+    char *sortie = NULL;
+    char *perf = NULL;
     for (int i=1; i<argc; i++){
         if (strcmp(argv[i], "-help") == 0){
             printf("Le programme pourra, par exemple, etre lance par la commande :\n./projet [-n int] [-a algo1|algo2|algo3|...] [-help] [-s fichierdesortie] [-l fichierdeperf] fichiers de donnees (plusieurs!)\n");
@@ -154,10 +164,16 @@ int main(int argc, char *argv[]){
             }
             free(copie);
             i++;
+        } else if (strcmp(argv[i], "-s") == 0){
+            sortie = argv[i+1];
+            i++;
+        } else if (strcmp(argv[i], "-l") == 0){
+           perf = argv[i+1];
+           i++;
         }
     }
     for (int i=1; i<argc; i++){
-        if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "-a") == 0) {
+        if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "-s") == 0) {
             i++;
             continue;
         }
@@ -169,11 +185,18 @@ int main(int argc, char *argv[]){
             InfoMem info = {0, 0, 0};
             if (a1){
                 InfoMem info = {0, 0, 0};
-                algo1(fichier, &info, n);
-                printf("Algorithme 1 :\n");
+                printf("Algorithme 1 sur le fichier %s\n", argv[i]);
+                algo1(fichier, &info, n, sortie);
                 printf("Cumul Alloc: %zu\n", info.cumul_alloc);
                 printf("Cumul Desalloc: %zu\n", info.cumul_desalloc);
                 printf("Pic (Max Alloc): %zu\n", info.max_alloc);
+                if (perf){
+                    FILE *fperf = fopen(perf, "a");
+                    if (fperf)
+                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc);
+                    fclose(fperf);
+                }
+                rewind(fichier);
             }
             if (a2)
                 printf("Pas encore de deuxieme algo.\n");
