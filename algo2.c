@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include <windows.h>
 
 // InfoMem
 
@@ -53,15 +54,14 @@ void myFree(void* ptr, InfoMem* infoMem, size_t old_size){
 
 // Algo 2
 
-#define MAX_MOT 100
-
 typedef struct{
     int taille;
-    char mot[MAX_MOT];
+    char *mot;
 } Mot;
 
 typedef struct mot {
     Mot m;
+    int occurrences;
     struct mot *suite;
 } CelluleMot, *Texte;
 
@@ -69,23 +69,29 @@ CelluleMot* allouerCellule(Mot _mot, InfoMem * info){
     CelluleMot * cm = myMalloc(sizeof(CelluleMot), info);
     if (!cm) return NULL;
     cm->m = _mot;
+    cm->occurrences = 1;
     cm->suite = NULL;
     return cm;
 }
 
 int insererEnTete(Texte *texte, Mot _mot, InfoMem * info){
-    CelluleMot * cm = myMalloc(sizeof(CelluleMot), info);
+    CelluleMot * cm = allouerCellule(_mot, info);
     if (!cm) return 0;
-    cm->m = _mot;
     cm->suite = *texte;
     *texte = cm;
     return 1;
 }
 
-Mot initMot(FILE * f){
+Mot initMot(FILE * f, InfoMem * info){
     int c = fgetc(f);
     Mot _mot;
     int c_count = 0;
+    int max_mot = 100;
+    _mot.mot = (char*)myMalloc(sizeof(char)*max_mot, info);
+    if (_mot.mot == NULL) {
+        _mot.taille = 0;
+        return _mot; 
+    }
     while ((c != EOF) && (isspace(c) || ispunct(c))){
         c = fgetc(f);
     }
@@ -94,41 +100,65 @@ Mot initMot(FILE * f){
         _mot.taille = 0;
         return _mot;
     }
-    while ((c != EOF) && !isspace(c) && !ispunct(c) && c_count < MAX_MOT - 1){
+    while ((c != EOF) && !isspace(c) && !ispunct(c) && c_count < max_mot - 1){
         _mot.mot[c_count] = c;
         c_count++;
         c = fgetc(f);
     }
     _mot.mot[c_count] = '\0';
     _mot.taille = c_count;
+    char * mot_ajuste = (char*)myRealloc(_mot.mot, sizeof(char)*(c_count + 1), info, sizeof(char)*max_mot); // +1 pour l'espace
+    if (mot_ajuste != NULL) {
+        _mot.mot = mot_ajuste;
+    }
     return _mot;
 };
+
+void compterOuInserer(Texte *texte, Mot _mot, InfoMem * info) {
+    CelluleMot *cm = *texte;
+    while (cm != NULL) {
+        if (strcmp(cm->m.mot, _mot.mot) == 0) {
+            cm->occurrences++; 
+            return;
+        }
+        cm = cm->suite;
+    }
+    insererEnTete(texte, _mot, info);
+}
 
 Texte initTexte(FILE * f, InfoMem * info){
     Texte _texte = NULL;
     while (1){
-        Mot _mot = initMot(f);
-        if (_mot.taille == 0) {
-            break;
-        }
-        if (!insererEnTete(&_texte, _mot, info)) {
-            break; 
-        }
+        Mot _mot = initMot(f, info);
+        if (_mot.taille == 0) break;
+        compterOuInserer(&_texte, _mot, info);
     }
     return _texte;
 };
 
 void printTexte(Texte _texte) {
     while (_texte) {
-        printf("%s ", _texte->m.mot);
+        printf("%s(%d) ", _texte->m.mot, _texte->occurrences);
         _texte = _texte->suite;
     }
 }
 
+void libererTexte(Texte _texte, InfoMem * info){
+    CelluleMot * cm = _texte;
+    while (cm != NULL){
+        CelluleMot * scm = cm->suite;
+        myFree(cm->m.mot, info, sizeof(char)*(cm->m.taille + 1)); // +1 pour l'espace
+        myFree(cm, info, sizeof(CelluleMot));
+        cm = scm;
+    }
+}
+
 int main(void){
+    SetConsoleOutputCP(65001);
     InfoMem info = {0, 0, 0};
     FILE * f = fopen("./texts/text1.txt", "r");
     Texte texte = initTexte(f, &info);
     printTexte(texte);
     fclose(f);
+    libererTexte(texte, &info);
 }
