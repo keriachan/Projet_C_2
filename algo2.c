@@ -11,7 +11,17 @@ typedef struct {
     size_t cumul_alloc; // champ obligatoire : cumul de l’espace mémoire alloué
     size_t cumul_desalloc; // champ obligatoire : cumul de l’espace mémoire désalloué
     size_t max_alloc; // pic d'allocation mémoire utilisée durant l’exécution
+    int op_count; // nombre d'opérations (myMalloc, myRealloc, myFree)
+    FILE * f_log; // fichier de logs
 } InfoMem;
+
+void logMem(InfoMem * info) {
+    if (info->f_log != NULL) {
+        size_t current = info->cumul_alloc - info->cumul_desalloc;
+        info->op_count++;
+        fprintf(info->f_log, "%d,%zu\n", info->op_count, current);
+    }
+}
 
 void* myMalloc(size_t size, InfoMem* infoMem){
     void* ptr = (void*)malloc(size);
@@ -20,6 +30,7 @@ void* myMalloc(size_t size, InfoMem* infoMem){
         if (infoMem->cumul_alloc - infoMem->cumul_desalloc>infoMem->max_alloc){
             infoMem->max_alloc = infoMem->cumul_alloc - infoMem->cumul_desalloc;
         }
+        logMem(infoMem);
     }
     return ptr;
 }
@@ -41,6 +52,7 @@ void* myRealloc(void* ptr, size_t new_size, InfoMem* infoMem, size_t old_size) {
         if (infoMem->cumul_alloc - infoMem->cumul_desalloc > infoMem->max_alloc) {
             infoMem->max_alloc = infoMem->cumul_alloc - infoMem->cumul_desalloc;
         }
+        logMem(infoMem);
     }
     return ptr2;
 }
@@ -49,6 +61,7 @@ void myFree(void* ptr, InfoMem* infoMem, size_t old_size){
     if (ptr != NULL){
         infoMem->cumul_desalloc+=old_size;
         free(ptr);
+        logMem(infoMem);
     }
 }
 
@@ -153,12 +166,21 @@ void libererTexte(Texte _texte, InfoMem * info){
     }
 }
 
+void algo2(FILE * f, InfoMem * info){
+    Texte texte = initTexte(f, info);
+    printTexte(texte);
+    libererTexte(texte, info);
+}
+
 int main(void){
     SetConsoleOutputCP(65001);
-    InfoMem info = {0, 0, 0};
+    FILE * f_log = fopen("./logs/mem_log_algo2.csv", "w");
+    InfoMem  info = {0, 0, 0, 0, f_log};
     FILE * f = fopen("./texts/text1.txt", "r");
-    Texte texte = initTexte(f, &info);
-    printTexte(texte);
-    fclose(f);
-    libererTexte(texte, &info);
+    fprintf(f_log, "operation,memory\n");
+    fprintf(f_log, "0,0\n"); // Point de départ
+    algo2(f, &info);
+    fprintf(f_log, "max_alloc : %zu", info.max_alloc);
+    fclose(f_log);
+    return 0;
 }
