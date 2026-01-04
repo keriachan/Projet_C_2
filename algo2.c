@@ -175,12 +175,23 @@ void algo2(FILE * f, InfoMem * info){
 int main(void){
     SetConsoleOutputCP(65001);
     FILE * f_log = fopen("./logs/mem_log_algo2.csv", "w");
+    FILE * f_stats = fopen("./logs/mem_stats_algo2.csv", "w");
     InfoMem  info = {0, 0, 0, 0, f_log};
     FILE * f = fopen("./texts/text1.txt", "r");
     fprintf(f_log, "operation,memory\n");
     fprintf(f_log, "0,0\n"); // Point de départ
+    clock_t debut = clock();
     algo2(f, &info);
-    fprintf(f_log, "max_alloc : %zu", info.max_alloc);
+    clock_t fin = clock();
+    double temps_ecoule = (double)(fin - debut) / CLOCKS_PER_SEC;
+    printf("\ntemps : %f sec\n", temps_ecoule);
+    fprintf(f_stats, "metric,value\n");
+    fprintf(f_stats, "max_alloc,%zu\n", info.max_alloc);
+    fprintf(f_stats, "total_alloc,%zu\n", info.cumul_alloc);
+    fprintf(f_stats, "total_free,%zu\n", info.cumul_desalloc);
+    fprintf(f_stats, "total_time,%f\n", temps_ecoule);
     fclose(f_log);
+    fclose(f_stats);
+    fclose(f);
     return 0;
 }
