@@ -457,7 +457,7 @@ int main(int argc, char *argv[]){
                 if (perf){
                     FILE *fperf = fopen(perf, "a");
                     if (fperf)
-                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\n temps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
+                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
                     fclose(fperf);
                 }
                 rewind(fichier);
@@ -479,7 +479,7 @@ int main(int argc, char *argv[]){
                 if (perf){
                     FILE *fperf = fopen(perf, "a");
                     if (fperf)
-                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\n temps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
+                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
                     fclose(fperf);
                 }
                 rewind(fichier);
@@ -501,7 +501,7 @@ int main(int argc, char *argv[]){
                 if (perf){
                     FILE *fperf = fopen(perf, "a");
                     if (fperf)
-                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\n temps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
+                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
                     fclose(fperf);
                 }
                 rewind(fichier);
