@@ -129,7 +129,7 @@ void ajouter_au_dict(Dict *d, const char *mot_lu, InfoMem *info) {
     d->taille++;
 }
 
-void algo1(FILE *fichier, InfoMem * info, int n, char *sortie) {
+void algo1(FILE *fichier, InfoMem * info, int n, char *sortie, char *nomFichier) {
     Dict monDict = {NULL, 0, 0};
     Mot courant = {NULL, 0, 0};
     int c;
@@ -159,8 +159,10 @@ void algo1(FILE *fichier, InfoMem * info, int n, char *sortie) {
     qsort(monDict.elem, monDict.taille, sizeof(Element), comparer_occurrences);
     int max = (n>0 && n<monDict.taille) ? n : monDict.taille;
     FILE *fsortie = NULL;
-    if (sortie)
-        fsortie = fopen(sortie, "w");
+    if (sortie){
+        fsortie = fopen(sortie, "a");
+        fprintf(fsortie, "Fichier %s\n", nomFichier);
+    }
     for (int i = 0; i < monDict.taille; i++) {
         if (i < max)
             printf("%s (%d)\n", monDict.elem[i].mot, monDict.elem[i].occurrences);
@@ -168,8 +170,10 @@ void algo1(FILE *fichier, InfoMem * info, int n, char *sortie) {
             fprintf(fsortie, "%s %d\n", monDict.elem[i].mot, monDict.elem[i].occurrences);  
         myFree(monDict.elem[i].mot, info, strlen(monDict.elem[i].mot) + 1);
     }
-    if (fsortie)
+    if (fsortie){
+        fprintf(fsortie, " \n");
         fclose(fsortie);
+    }
     myFree(monDict.elem, info, monDict.capacite * sizeof(Element));
     myFree(courant.mot, info, courant.capacite * sizeof(char));
 }
@@ -283,7 +287,7 @@ void libererTexte(Texte _texte, InfoMem * info){
     }
 }
 
-void algo2(FILE * f, InfoMem * info, int n, char *sortie){
+void algo2(FILE * f, InfoMem * info, int n, char *sortie, char *nomFichier){
     Texte texte = initTexte(f, info);
     int count = 0;
     CelluleMot *curr = texte;
@@ -302,7 +306,10 @@ void algo2(FILE * f, InfoMem * info, int n, char *sortie){
         qsort(array, count, sizeof(CelluleMot*), comparer_cellules);
         int max = (n > 0 && n < count) ? n : count;
         FILE *fsortie = NULL;
-        if (sortie) fsortie = fopen(sortie, "w");
+        if (sortie) {
+            fsortie = fopen(sortie, "a");
+            fprintf(fsortie, "Fichier %s\n", nomFichier);
+        }
         for (int j = 0; j < count; j++) {
             if (j < max) {
                 printf("%s (%d)\n", array[j]->m.mot, array[j]->occurrences);
@@ -311,8 +318,10 @@ void algo2(FILE * f, InfoMem * info, int n, char *sortie){
                 fprintf(fsortie, "%s %d\n", array[j]->m.mot, array[j]->occurrences);
             }
         }
-        if (fsortie) 
+        if (fsortie){
+            fprintf(fsortie, " \n");
             fclose(fsortie);
+        }
         myFree(array, info, count * sizeof(CelluleMot*));
     }
     libererTexte(texte, info);
@@ -343,7 +352,7 @@ int comparer_mots_freq(const void *a, const void *b) {
     return (elemB->occurrences - elemA->occurrences);
 }
 
-void algo3(FILE *f, InfoMem *info, int n, char *sortie) {
+void algo3(FILE *f, InfoMem *info, int n, char *sortie, char *nomFichier) {
     Texte3 _texte = {NULL, 0, 0};
     _texte.capacite = 100;
     _texte.mots = (Mot3*)myMalloc(_texte.capacite * sizeof(Mot3), info);
@@ -378,7 +387,10 @@ void algo3(FILE *f, InfoMem *info, int n, char *sortie) {
     qsort(_texte.mots, nb_uniques, sizeof(Mot3), comparer_mots_freq);
     int max = (n > 0 && n < nb_uniques) ? n : nb_uniques;
     FILE *fsortie = NULL;
-    if (sortie) fsortie = fopen(sortie, "w");
+    if (sortie){
+        fsortie = fopen(sortie, "a");
+        fprintf(fsortie, "Fichier %s\n", nomFichier);
+    }
     for (int i = 0; i < nb_uniques; i++) {
         if (i < max) {
             printf("%s (%d)\n", _texte.mots[i].mot, _texte.mots[i].occurrences);
@@ -389,8 +401,10 @@ void algo3(FILE *f, InfoMem *info, int n, char *sortie) {
         myFree(_texte.mots[i].mot, info, (strlen(_texte.mots[i].mot) + 1) * sizeof(char));
     }
     
-    if (fsortie) 
+    if (fsortie){
+        fprintf(fsortie, " \n");
         fclose(fsortie);
+    }
     myFree(_texte.mots, info, _texte.capacite * sizeof(Mot3));
 }
 
@@ -430,12 +444,6 @@ int main(int argc, char *argv[]){
            perf = argv[i+1];
            i++;
         }
-        if (perf) {
-        FILE *f_reset = fopen(perf, "w");
-        if (f_reset) {
-            fclose(f_reset);
-        }
-    }
     }
     for (int i=1; i<argc; i++){
         if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "-l") == 0) {
@@ -454,16 +462,17 @@ int main(int argc, char *argv[]){
                 InfoMem info = {0, 0, 0, 0, f_log};
                 printf("Algorithme 1 sur le fichier %s\n", argv[i]);
                 startTimer();
-                algo1(fichier, &info, n, sortie);
+                algo1(fichier, &info, n, sortie, argv[i]);
                 double temps_ecoule = stopTimer();
                 printf("Cumul Alloc: %zu\n", info.cumul_alloc);
                 printf("Cumul Desalloc: %zu\n", info.cumul_desalloc);
                 printf("Pic (Max Alloc): %zu\n", info.max_alloc);
                 printf("Temps d'execution : %f s\n", temps_ecoule);
                 if (perf){
-                    FILE *fperf = fopen(perf, "w");
+                    FILE *fperf = fopen(perf, "a");
                     if (fperf)
                         fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
+                    fprintf(fperf, "\n");
                     fclose(fperf);
                 }
                 rewind(fichier);
@@ -476,16 +485,17 @@ int main(int argc, char *argv[]){
                 InfoMem info = {0, 0, 0, 0, f_log};
                 printf("Algorithme 2 sur le fichier %s\n", argv[i]);
                 startTimer();
-                algo2(fichier, &info, n, sortie);
+                algo2(fichier, &info, n, sortie, argv[i]);
                 double temps_ecoule = stopTimer();
                 printf("Cumul Alloc: %zu\n", info.cumul_alloc);
                 printf("Cumul Desalloc: %zu\n", info.cumul_desalloc);
                 printf("Pic (Max Alloc): %zu\n", info.max_alloc);
                 printf("Temps d'execution : %f s\n", temps_ecoule);
                 if (perf){
-                    FILE *fperf = fopen(perf, "w");
+                    FILE *fperf = fopen(perf, "a");
                     if (fperf)
-                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
+                        fprintf(fperf, "Fichier %s\nAlgo algo2\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
+                    fprintf(fperf, "\n");
                     fclose(fperf);
                 }
                 rewind(fichier);
@@ -498,16 +508,17 @@ int main(int argc, char *argv[]){
                 InfoMem info = {0, 0, 0, 0, f_log};
                 printf("Algorithme 3 sur le fichier %s\n", argv[i]);
                 startTimer();
-                algo3(fichier, &info, n, sortie);
+                algo3(fichier, &info, n, sortie, argv[i]);
                 double temps_ecoule = stopTimer();
                 printf("Cumul Alloc: %zu\n", info.cumul_alloc);
                 printf("Cumul Desalloc: %zu\n", info.cumul_desalloc);
                 printf("Pic (Max Alloc): %zu\n", info.max_alloc);
                 printf("Temps d'execution : %f s\n", temps_ecoule);
                 if (perf){
-                    FILE *fperf = fopen(perf, "w");
+                    FILE *fperf = fopen(perf, "a");
                     if (fperf)
-                        fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
+                        fprintf(fperf, "Fichier %s\nAlgo algo3\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
+                    fprintf(fperf, "\n");
                     fclose(fperf);
                 }
                 rewind(fichier);
