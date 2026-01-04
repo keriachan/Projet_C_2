@@ -430,6 +430,12 @@ int main(int argc, char *argv[]){
            perf = argv[i+1];
            i++;
         }
+        if (perf) {
+        FILE *f_reset = fopen(perf, "w");
+        if (f_reset) {
+            fclose(f_reset);
+        }
+    }
     }
     for (int i=1; i<argc; i++){
         if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "-l") == 0) {
@@ -455,7 +461,7 @@ int main(int argc, char *argv[]){
                 printf("Pic (Max Alloc): %zu\n", info.max_alloc);
                 printf("Temps d'execution : %f s\n", temps_ecoule);
                 if (perf){
-                    FILE *fperf = fopen(perf, "a");
+                    FILE *fperf = fopen(perf, "w");
                     if (fperf)
                         fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
                     fclose(fperf);
@@ -477,7 +483,7 @@ int main(int argc, char *argv[]){
                 printf("Pic (Max Alloc): %zu\n", info.max_alloc);
                 printf("Temps d'execution : %f s\n", temps_ecoule);
                 if (perf){
-                    FILE *fperf = fopen(perf, "a");
+                    FILE *fperf = fopen(perf, "w");
                     if (fperf)
                         fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
                     fclose(fperf);
@@ -499,7 +505,7 @@ int main(int argc, char *argv[]){
                 printf("Pic (Max Alloc): %zu\n", info.max_alloc);
                 printf("Temps d'execution : %f s\n", temps_ecoule);
                 if (perf){
-                    FILE *fperf = fopen(perf, "a");
+                    FILE *fperf = fopen(perf, "w");
                     if (fperf)
                         fprintf(fperf, "Fichier %s\nAlgo algo1\ncumul_alloc %zu\ncumul_desalloc %zu\nmax_alloc %zu\ntemps_ecoule %f\n",argv[i], info.cumul_alloc, info.cumul_desalloc, info.max_alloc, temps_ecoule);
                     fclose(fperf);
