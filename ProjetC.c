@@ -304,7 +304,12 @@ void algo2(FILE * f, InfoMem * info, int n, char *sortie, char *nomFichier){
             curr = curr->suite;
         }
         qsort(array, count, sizeof(CelluleMot*), comparer_cellules);
-        int max = (n > 0 && n < count) ? n : count;
+        int max;
+        if (n > 0 && n < count){
+            max = n;
+        } else {
+            max = count;
+        }
         FILE *fsortie = NULL;
         if (sortie) {
             fsortie = fopen(sortie, "a");
@@ -385,7 +390,12 @@ void algo3(FILE *f, InfoMem *info, int n, char *sortie, char *nomFichier) {
     }
     int nb_uniques = index_ecriture + 1;
     qsort(_texte.mots, nb_uniques, sizeof(Mot3), comparer_mots_freq);
-    int max = (n > 0 && n < nb_uniques) ? n : nb_uniques;
+    int max;
+    if (n > 0 && n < nb_uniques){
+        max = n;
+    } else {
+        max = nb_uniques;
+    }
     FILE *fsortie = NULL;
     if (sortie){
         fsortie = fopen(sortie, "a");
