@@ -1,6 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import os
+
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def acquerir_stats(nom_fichier):
     stats_list = []
@@ -72,16 +76,17 @@ query = ""
 while query != "stop":
     query = ""
     while query != "1" and query!="2" and query!="3" and query!="stop":
+        clear_terminal()
         print("Que voulez vous faire ? ('stop' pour arrêter)")
         print("1/ Diagrammes mémoire/temps d'exécution par algorithme (les 3 algorithmes doivent avoir leurs fichier de perf nommés stats1, stats2, stats3)")
         print("2/ Graphique de l'évolution de la mémoire allouée par rapport aux opérations d'allocation (pour un algorithme)")
         print("3/ Diagrammes des mots les plus courants")
         query = input()
     if query == '1':
+        clear_terminal()
         stats1 = acquerir_stats('stats1')
         stats2 = acquerir_stats('stats2')
         stats3 = acquerir_stats('stats3')
-        print(stats3)
         if stats1 == [] or stats2 == [] or stats3 == []:
             print("L'un des fichiers n'est pas correctement initialisé")
             break
@@ -134,6 +139,7 @@ while query != "stop":
         elif query == "stop":
             break
     elif query == '2':
+        clear_terminal()
         query = input("Quel algorithme voulez-vous examiner ? (1, 2, 3 ou stop pour arreter, le fichier doit etre present dans ./logs/) : ")
         if query == "1":
             df = pd.read_csv("./logs/mem_log_algo1.csv")
@@ -165,8 +171,10 @@ while query != "stop":
         elif query == "stop":
             break
     elif query == '3':
+        clear_terminal()
         query = input("Quel algorithme voulez-vous examiner ? (1, 2, 3 ou stop pour arreter, le fichier doit etre present) : ")
         if query == "1":
+            clear_terminal()
             res1 = acquerir_res('res1')
             if res1 == []:
                 print("Fichier non initialisé")
@@ -189,6 +197,7 @@ while query != "stop":
                     plt.ylabel("Ocurrences")
                     plt.show()
         elif query == "2":
+            clear_terminal()
             res2 = acquerir_res('res2')
             if res2 == []:
                 print("Fichier non initialisé")
@@ -211,6 +220,7 @@ while query != "stop":
                     plt.ylabel("Ocurrences")
                     plt.show()
         elif query == "3":
+            clear_terminal()
             res3 = acquerir_res('res3')
             if res3 == []:
                 print("Fichier non initialisé")

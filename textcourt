@@ -1,0 +1,6 @@
+Python est un langage de programmation qui peut s'utiliser dans de nombreux contextes grâce à des bibliothèques spécialisées.
+Il est utilisé comme langage de script pour automatiser des tâches comme la récupération de la météo sur Internet ou l'enchaînement d'actions en conception assistée par ordinateur (voir la section Adoption). On l'utilise également comme langage de développement de prototype lorsqu'on a besoin d'une application fonctionnelle avant de l'optimiser avec un langage compilé. Il est particulièrement répandu dans le monde scientifique, et possède des bibliothèques optimisées pour le calcul numérique.
+C'est l'un des langages utilisés dans le domaine du big data, de l'informatique quantique et de l'intelligence artificielle incluant l'apprentissage automatique.
+Python est apprécié par les pédagogues qui y trouvent un langage où la syntaxe, clairement séparée des mécanismes de bas niveau, permet une initiation aisée aux concepts de base de la programmation.
+Cette initiation commence généralement au début du lycée en classe de seconde. Les élèves souhaitant approfondir le sujet peuvent choisir un enseignement de spécialité Numérique et sciences informatiques (NSI).
+Les calculatrices supportant Python destinées aux lycéens fonctionnent en Python 3. Ces calculatrices peuvent échanger des programmes avec des ordinateurs personnels. 
